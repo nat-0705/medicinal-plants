@@ -1,16 +1,16 @@
-import os
 from flask import Flask, request, jsonify
 import tensorflow as tf
 import numpy as np
 from PIL import Image
 import io
+import os
 
 app = Flask(__name__)
 
-# Load your trained CNN model
-model = tf.keras.models.load_model("model/medicinal_plant_cnn.h5")
+# ✅ Load the model once (instead of per request)
+MODEL_PATH = "model/medicinal_plant_cnn.h5"
+model = tf.keras.models.load_model(MODEL_PATH)
 
-# Define allowed image size (must match model input shape)
 IMG_SIZE = (224, 224)
 
 @app.route("/predict", methods=["POST"])
@@ -39,5 +39,5 @@ def predict():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))  # ✅ Use Render's provided PORT
-    app.run(host="0.0.0.0", port=port, debug=True)
+    PORT = int(os.getenv("PORT", 10000))
+    app.run(host="0.0.0.0", port=PORT, debug=False)
