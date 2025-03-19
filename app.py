@@ -7,7 +7,7 @@ import os
 
 app = Flask(__name__)
 
-# ✅ Load the model once (instead of per request)
+# ✅ Load the model only once (avoid reloading)
 MODEL_PATH = "model/medicinal_plant_cnn.h5"
 model = tf.keras.models.load_model(MODEL_PATH)
 
@@ -32,6 +32,9 @@ def predict():
 
         classes = ['Lemongrass', 'Basil', 'Mint', 'Acapulco', 'Pandan', 'Turmeric', 'Goathe', 'Aloe Vera', 'Oregano', 'Ginseng']
         plant_name = classes[class_index]
+
+        # ✅ Free up TensorFlow memory after prediction
+        tf.keras.backend.clear_session()
 
         return jsonify({"class": plant_name, "confidence": confidence})
 
