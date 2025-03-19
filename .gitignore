@@ -1,5 +1,3 @@
 __pycache__/
-*.py
 *.pyc
 *.pyo
-*.h5
