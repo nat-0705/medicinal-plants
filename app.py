@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 import tensorflow as tf
 import numpy as np
@@ -6,13 +7,14 @@ import io
 
 app = Flask(__name__)
 
-# Load your trained CNN model
-model = tf.keras.models.load_model(r"C:\Users\marko\Documents\School\flask-api\model\medicinal_plant_cnn.h5")
+# Use relative path so Render can find the model
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "model", "medicinal_plant_cnn.h5")
+model = tf.keras.models.load_model(MODEL_PATH)
 
 # Define allowed image size (must match model input shape)
 IMG_SIZE = (224, 224)
 
-@app.route("/predict", methods=["POST"])  # ✅ Make sure this allows POST
+@app.route("/predict", methods=["POST"])
 def predict():
     if "file" not in request.files:
         return jsonify({"error": "No file provided"}), 400
@@ -30,7 +32,7 @@ def predict():
         confidence = float(np.max(prediction))
 
         # Map index to class name (adjust this based on your dataset)
-        classes = ['Lemongrass', 'Basil', 'Mint', 'Acapulco', 'Pandan', 'Turmeric', 'Goathe', 'Aloe Vera', 'Oregano', 'Gensing']
+        classes = ['Lemongrass', 'Basil', 'Mint', 'Acapulco', 'Pandan', 'Turmeric', 'Goathe', 'Aloe Vera', 'Oregano', 'Ginseng']
         plant_name = classes[class_index]
 
         return jsonify({"class": plant_name, "confidence": confidence})
