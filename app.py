@@ -7,9 +7,8 @@ import io
 
 app = Flask(__name__)
 
-# Use relative path so Render can find the model
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "model", "medicinal_plant_cnn.h5")
-model = tf.keras.models.load_model(MODEL_PATH)
+# Load your trained CNN model
+model = tf.keras.models.load_model("model/medicinal_plant_cnn.h5")
 
 # Define allowed image size (must match model input shape)
 IMG_SIZE = (224, 224)
@@ -23,15 +22,14 @@ def predict():
     
     try:
         image = Image.open(io.BytesIO(file.read()))
-        image = image.resize(IMG_SIZE)  # Resize to model input size
-        image = np.array(image) / 255.0  # Normalize
-        image = np.expand_dims(image, axis=0)  # Add batch dimension
+        image = image.resize(IMG_SIZE)
+        image = np.array(image) / 255.0
+        image = np.expand_dims(image, axis=0)
         
         prediction = model.predict(image)
         class_index = np.argmax(prediction)
         confidence = float(np.max(prediction))
 
-        # Map index to class name (adjust this based on your dataset)
         classes = ['Lemongrass', 'Basil', 'Mint', 'Acapulco', 'Pandan', 'Turmeric', 'Goathe', 'Aloe Vera', 'Oregano', 'Ginseng']
         plant_name = classes[class_index]
 
@@ -41,4 +39,5 @@ def predict():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.environ.get("PORT", 10000))  # ✅ Use Render's provided PORT
+    app.run(host="0.0.0.0", port=port, debug=True)
